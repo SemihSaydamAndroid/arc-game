@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Join my room — ARC</title>
+<meta property="og:title" content="ARC — come fight the monster with me!">
+<meta property="og:description" content="Tap to open the game and join my room.">
+<!-- When the game is on the App Store, put its id here (app-id=123456789) to get Safari's "Open" banner. -->
+<meta name="apple-itunes-app" id="banner" content="">
+<style>
+  :root { color-scheme: dark; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 520px; margin: 0 auto;
+         padding: 36px 18px; line-height: 1.5; text-align: center; color: #f4f1ff;
+         background: linear-gradient(#1c2440, #39457a 55%, #8a6a9e 85%, #f4a96e); min-height: 100vh; box-sizing: border-box; }
+  h1 { font-size: 44px; letter-spacing: 10px; margin: 8px 0 4px; }
+  .tag { color: #d9d3f0; font-size: 14px; letter-spacing: 3px; margin-bottom: 28px; }
+  .code { font-size: 44px; font-weight: 800; letter-spacing: 8px; background: rgba(12, 10, 24, .6); border-radius: 16px;
+          padding: 16px 10px; margin: 12px 0; user-select: all; }
+  .btn { display: block; width: 100%; box-sizing: border-box; padding: 15px; margin: 10px 0; border-radius: 14px; border: 0;
+         font-size: 17px; font-weight: 800; letter-spacing: 1px; text-decoration: none; cursor: pointer; }
+  .primary { background: #43b0ff; color: #fff; }
+  .secondary { background: rgba(12, 10, 24, .6); color: #f4f1ff; }
+  .hint { color: #e3ddf5; font-size: 14px; }
+  .hidden { display: none; }
+  #install-box { margin-top: 24px; padding-top: 18px; border-top: 1px solid rgba(255, 255, 255, .2); }
+</style>
+</head>
+<body>
+<h1>ARC</h1>
+<div class="tag">PUSH THE MONSTER TO YOUR RIVAL</div>
+<p class="hint">Your friend invited you to a room. The code:</p>
+
+<div id="code" class="code">——</div>
+
+<a id="open" class="btn primary" href="#">OPEN ARC AND JOIN</a>
+<button id="copy" class="btn secondary" type="button">COPY CODE</button>
+<p id="copied" class="hint hidden">Copied! In the game: <b>PLAY ONLINE → PASTE → JOIN</b>.</p>
+
+<div id="install-box" class="hidden">
+  <p class="hint"><b>The game didn't open?</b> Install ARC first, then tap this link again —
+  or open the game and enter the code above under <b>PLAY ONLINE</b>.</p>
+  <a id="get" class="btn primary hidden" href="#">GET ARC</a>
+</div>
+
+<script>
+  // Fill these in when the game is live.
+  var APP_STORE_ID = "";   // e.g. "6813060155"
+  var INSTALL_URL = "";    // App Store / Play Store / TestFlight link
+
+  // The game registers arcgame://join/CODE (Assets/_Game/Scripts/Online/JoinLink.cs).
+  var raw = new URLSearchParams(location.search).get("c") || "";
+  var code = raw.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
+  var deepLink = "arcgame://join/" + code;
+
+  document.getElementById("code").textContent = code || "——";
+  document.getElementById("open").href = deepLink;
+  if (INSTALL_URL) {
+    var get = document.getElementById("get");
+    get.href = INSTALL_URL;
+    get.classList.remove("hidden");
+  }
+  if (APP_STORE_ID) {
+    document.getElementById("banner").setAttribute("content",
+      "app-id=" + APP_STORE_ID + (code ? ", app-argument=" + deepLink : ""));
+  }
+
+  function copyCode() {
+    if (navigator.clipboard && code) navigator.clipboard.writeText(code).catch(function () {});
+  }
+
+  document.getElementById("copy").addEventListener("click", function () {
+    copyCode();
+    document.getElementById("copied").classList.remove("hidden");
+  });
+
+  var installBox = document.getElementById("install-box");
+  if (code) {
+    // Try the game once. If it opens, the page goes to the background and nothing else shows;
+    // otherwise the install hint appears and the code is already on the clipboard.
+    var opened = false;
+    document.addEventListener("visibilitychange", function () { if (document.hidden) opened = true; });
+    setTimeout(function () { location.href = deepLink; }, 300);
+    setTimeout(function () {
+      if (!opened && !document.hidden) {
+        copyCode();
+        installBox.classList.remove("hidden");
+      }
+    }, 1500);
+  } else {
+    installBox.classList.remove("hidden");
+  }
+</script>
+</body>
+</html>
